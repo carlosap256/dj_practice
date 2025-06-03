@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+{% load static %}
+
+
+<script>
+$(document).ready(function(){
+  var csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  $('#get_data').click(function(){
+    $.post( "/data_io", { action: "get_data", csrfmiddlewaretoken: csrf_token } )
+      .done(function(result){
+        $('#result_box').text(result);
+    });
+  });
+});
+</script>
+
+
+  <button id="get_data" type="button" class="btn btn-primary">Get Data</button>
+  
+  <button id="export_data" type="button" class="btn btn-secondary">Export Data</button>
+
+  <p id="result_box" class="text-break"></p>
+
+
+{% endblock content %}

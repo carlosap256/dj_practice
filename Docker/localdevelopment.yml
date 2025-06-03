@@ -1,0 +1,15 @@
+services:
+  postgres_server:
+    container_name: dj_postgress_local
+    image: "postgres:17.5-alpine3.21"
+    restart: no
+    ports:
+      - "5432:5432"
+    volumes: 
+       - ./data/dj_data:/var/lib/postgresql/data/dj_data
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: dj_practice
+      POSTGRES_DB: dj_practice
+      PGDATA: dj_data

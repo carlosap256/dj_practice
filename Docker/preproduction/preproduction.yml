@@ -1,0 +1,40 @@
+services:
+  postgres_server:
+    container_name: dj_postgress_preproduction
+    image: "postgres:17.5-alpine3.21"
+    restart: no
+    volumes: 
+       - ./data/dj_data:/var/lib/postgresql/data/dj_data
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_USER: dj_practice
+      POSTGRES_DB: dj_practice
+      PGDATA: dj_data
+    secrets:
+      - postgres_password
+    
+  dj_practice_preproduction:
+    container_name: dj_practice_preproduction
+    image: "dj_practice:latest"
+    restart: no
+    volumes:
+      - ./www/dj_practice/:/var/www/dj_practice/
+    environment:
+      SECRET_KEY: /run/secrets/secret_key
+      DATABASE_PASSWORD: /run/secrets/postgres_password
+      DJANGO_SETTINGS_FILE: dj_practice.settings_preproduction
+    secrets:
+      - secret_key
+      - postgres_password
+      
+    networks:
+      - hostedapps
+
+secrets:
+  postgres_password:
+    file: secrets/postgres_password.txt
+  secret_key:
+    file: secrets/secret_key.txt  
+    
+

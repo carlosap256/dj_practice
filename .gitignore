@@ -1,0 +1,8 @@
+.vscode*
+*.log
+*.sqlite
+venv*
+
+*.pyc
+
+Docker/postgres_init.sh

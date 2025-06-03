@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+{% load static %}
+
+
+{% include "partials/static_imports/index_imports.html" %}
+
+<script>
+$(document).ready(function(){
+});
+</script>
+
+
+{% for phase in current_json %}
+
+<div class="card border-success mb-3" style="max-width: 18rem;">
+
+
+
+  
+  
+  <div class="card-body text-success">
+    <h5 class="card-title">{{ phase.startTime|date:"Y m d"}} {{ phase.startTime|date:"H:i"}} to {{ phase.endTime|date:"Y m d"}} {{ phase.endTime|date:"H:i"}}</h5>    
+  </div>
+  
+
+  <div class="card text-bg-dark">
+    <img src="{% static '/images/' %}{{phase.stage_image}}.webp" class="card-img" alt="{{phase.stage}}">
+    <div class="card-img-overlay">
+      
+      <div class="row">
+        <div class="col-md-2">
+          <img src="{% static '/images/' %}{{phase.boss_image}}.webp" class="img-fluid" style="filter: brightness(10);" alt="{{phase.bigBoss}}">
+        </div>
+        <div class="col-md-10">
+            <h5 style="text-shadow: 1px 1px 0px black;">{{phase.stage}}</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <div class="card-footer bg-transparent">
+    <div class="row">
+      {% for weapon in phase.weapons %}
+      <div class="col-3">
+        <img src="{% static '/images/' %}{{weapon.filename}}.webp" class="img-fluid" alt="{{weapon.name}}">
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endfor %}
+
+
+
+
+{% endblock content %}
