@@ -13,6 +13,14 @@ services:
       PGDATA: dj_data
     secrets:
       - postgres_password
+    networks:
+      - dj_practice_preproduction_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
     
   dj_practice_preproduction:
     container_name: dj_practice_preproduction
@@ -27,9 +35,12 @@ services:
     secrets:
       - secret_key
       - postgres_password
-      
+    depends_on:
+      postgres_server:
+        condition: service_healthy
     networks:
       - hostedapps
+      - dj_practice_preproduction_network
 
 secrets:
   postgres_password:
@@ -37,4 +48,9 @@ secrets:
   secret_key:
     file: secrets/secret_key.txt  
     
+networks:
+  hostedapps:
+    name: "hostedapps"
 
+  dj_practice_preproduction_network:
+    name: "dj_practice_preproduction_network"

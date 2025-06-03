@@ -4,8 +4,8 @@
 
 cd /dj_practice
 
-python makemigrations --settings="${DJANGO_SETTINGS_FILE}"
-python migrate --settings="${DJANGO_SETTINGS_FILE}"
+python manage.py makemigrations --settings="${DJANGO_SETTINGS_FILE}"
+python manage.py migrate --settings="${DJANGO_SETTINGS_FILE}"
 
 python manage.py collectstatic --noinput --settings="${DJANGO_SETTINGS_FILE}"
 
