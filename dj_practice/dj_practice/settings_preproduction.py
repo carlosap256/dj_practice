@@ -28,7 +28,7 @@ SECRET_KEY = get_secret_file_content_from_secret_name("secret_key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['dj_practice.lemoncapsule.com']
+ALLOWED_HOSTS = ['djpractice.lemoncapsule.com']
 
 
 # Application definition
@@ -119,7 +119,6 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "console": {
-            # 'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
             "format": "{levelname:s} {asctime} {processName:s} {threadName:s} [{lineno}:{name}] {message}",
             "style": "{",
         }
@@ -132,14 +131,14 @@ LOGGING = {
             "stream": sys.stdout,
         },
         "console": {
-            # 'level': 'INFO',
+            'level': 'INFO',
             "class": "logging.StreamHandler",
             "formatter": "console",
         },
         "file": {
-            # 'level': 'INFO',
+            'level': 'INFO',
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "dj_practice.log"),
+            "filename":  os.path.join("/", "var", "www", "dj_practice", "dj_practice.log"), #os.path.join(BASE_DIR, "dj_practice.log"),
             "maxBytes": 1024 * 1024 * 5,  # 5 MB
             "backupCount": 5,
             "formatter": "console",
