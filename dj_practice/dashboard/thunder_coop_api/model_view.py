@@ -1,6 +1,9 @@
-from dashboard.models import Normal, BigRun, TeamContest
 import json
 import os
+
+from django.conf import settings
+
+from dashboard.models import Normal, BigRun, TeamContest
 
 class ViewFromModel:
 
@@ -9,7 +12,7 @@ class ViewFromModel:
 
   def get_file_as_json(self):
     # return json.loads(resources_json)
-    with open(os.path.join("dj_practice", "dashboard", "thunder_coop_api","resources.json")) as resources_file:
+    with open(os.path.join(settings.BASE_DIR, "dashboard", "thunder_coop_api","resources.json")) as resources_file:
       return json.load(resources_file)
 
   def get_phases(self):
