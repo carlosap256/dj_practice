@@ -9,14 +9,14 @@ services:
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
       POSTGRES_USER: dj_practice
-      POSTGRES_DB: dj_practice
+      POSTGRES_DB: dj_practice_preproduction
       PGDATA: dj_data
     secrets:
       - postgres_password
     networks:
       - dj_practice_preproduction_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U dj_practice -d dj_practice_preproduction'"]
       interval: 30s
       timeout: 60s
       retries: 5
@@ -51,6 +51,7 @@ secrets:
 networks:
   hostedapps:
     name: "hostedapps"
+    external: true
 
   dj_practice_preproduction_network:
     name: "dj_practice_preproduction_network"
