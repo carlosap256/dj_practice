@@ -8,63 +8,92 @@ from dashboard.models import Normal, BigRun, TeamContest
 class ViewFromModel:
 
   def __init__(self) -> None:
-    self.resources_json = self.get_file_as_json()
+    self.resources_json = self._get_file_as_json()
 
-  def get_file_as_json(self):
+  def _get_file_as_json(self):
     # return json.loads(resources_json)
     with open(os.path.join(settings.BASE_DIR, "dashboard", "thunder_coop_api","resources.json")) as resources_file:
       return json.load(resources_file)
 
   def get_phases(self):
-    normalPhases = Normal.objects.all().order_by("-startTime")
-    return [self.base_phase_to_json(phase) for phase in normalPhases]
+    merged_list = []
+    [merged_list.append(self.normal_phase_to_json(phase)) for phase in Normal.objects.all()]
+    [merged_list.append(self.bigrun_to_json(phase)) for phase in BigRun.objects.all()]
+    [merged_list.append(self.team_contest_to_json(phase)) for phase in TeamContest.objects.all()]
 
-  def base_phase_to_json(self, phase):
+    return sorted(merged_list, key=lambda x: x.get('startTime'))
+  
+  def get_full_weapon_frequency_from_sorted_counter(self, sorted_counter, total_elements):
+    full_weapon_frequency = []
+    for frequency_pair in sorted_counter:
+      weapon_info = self._get_weapon_and_image_from_resource(str(frequency_pair[0]))
+      weapon_info['frequency'] = frequency_pair[1]
+      weapon_info['percent'] = 1000*frequency_pair[1]/total_elements
+      full_weapon_frequency.append(weapon_info)
+    return full_weapon_frequency
+  
+  def _base_phase_to_json(self, phase, type):
     return {
+      "type": type,
       "phaseId": phase.phaseId,
-      "bigBoss": self.get_value_from_resource_key("enemy", phase.bigBoss),
-      "boss_image": self.get_boss_image_name_from_name(phase.bigBoss),
       "startTime": phase.startTime,
       "endTime": phase.endTime,
-      "stage": self.get_value_from_resource_key("stages", str(phase.stage)),
-      "stage_image": self.get_image_name_from_stage(str(phase.stage)),
-      "weapons": [self.get_weapon_from_resource(str(weapon)) for weapon in phase.weapons],
-      "rareWeapons": [self.get_weapon_from_resource(str(rareWeapon)) for rareWeapon in phase.rareWeapons],
+      "stage": self._get_value_from_resource_key("stages", str(phase.stage)),
+      "stage_image": self._get_image_name_from_stage(str(phase.stage)),
+      "weapons": [self._get_weapon_and_image_from_resource(str(weapon)) for weapon in phase.weapons],
+      "rareWeapons": [self._get_weapon_and_image_from_resource(str(rareWeapon)) for rareWeapon in phase.rareWeapons],
     }
   
-  def bigrun_to_json(self, bigrun:BigRun):
-    json_phase = self.base_phase_to_json(bigrun)
-    # json_phase["rewards"] 
+  def normal_phase_to_json(self, phase):
+    json_phase = self._base_phase_to_json(phase, type="normal")
+    json_phase["bigBoss"]= self._get_boss_from_resource_key(phase.bigBoss)
+    json_phase["boss_image"]= self._get_boss_image_name_from_name(phase.bigBoss)
     return json_phase
 
-    # rewards = models.ForeignKey(PhaseRewards, on_delete=models.CASCADE)
+  def bigrun_to_json(self, bigrun:BigRun):
+    json_phase = self._base_phase_to_json(bigrun, type="bigrun")
+    json_phase["bigBoss"]= self._get_boss_from_resource_key(bigrun.bigBoss)
+    json_phase["boss_image"]= self._get_boss_image_name_from_name(bigrun.bigBoss)
+    return json_phase
 
-  def get_boss_image_name_from_name(self, bigBoss):
+  def team_contest_to_json(self, teamcontest:TeamContest):
+    json_phase = self._base_phase_to_json(teamcontest, type="teamcontest")
+    return json_phase
+
+  def _get_boss_image_name_from_name(self, bigBoss):
     match bigBoss:
       case "SakelienGiant": return "s3_icon_cohozuna"
       case "SakeRope": return "s3_icon_horrorboros"
       case "SakeJaw": return "s3_icon_megalodontia"
       case "Triple": return "s3_icon_triumvirate"
+      case "Random": return ""  # Make a random icon
       case _: return ""
             
+  def _get_boss_from_resource_key(self, boss):
+    if boss == "Random":
+      return boss
+    elif boss is None or boss == "Unknown":
+      return ""
+    else:
+      return self._get_value_from_resource_key("enemy", boss)
 
 
-  def get_value_from_resource_key(self, section, key):
+  def _get_value_from_resource_key(self, section, key):
     return self.resources_json[section][key]
   
-  def get_weapon_from_resource(self, weapon):
-    if weapon == "-1":
+  def _get_weapon_and_image_from_resource(self, weapon):
+    if weapon is None or weapon == "None" or weapon == "-1":
       weapon_name = "Random"
     elif weapon == "-2":
       weapon_name = "Gold Random"
     else:
-      weapon_name = self.get_value_from_resource_key("weapons/main", weapon)
+      weapon_name = self._get_value_from_resource_key("weapons/main", weapon)
     return {
       'name': weapon_name,
-      'filename': self.get_image_name_from_weapon(weapon)
+      'filename': self._get_image_name_from_weapon(weapon)
     }
 
-  def get_image_name_from_stage(self, stage):
+  def _get_image_name_from_stage(self, stage):
     match stage:
       case "1": return "shakeup"
       case "2": return "shakespiral"
@@ -76,7 +105,7 @@ class ViewFromModel:
       case "107": return "manbou"
       case _: return "unknown"
 
-  def get_image_name_from_weapon(self, weapon):
+  def _get_image_name_from_weapon(self, weapon):
     match weapon:
       case "-1": return "coop_random"   #"Random"
       case "-2": return "coop_random_gold"   #"Gold Random"

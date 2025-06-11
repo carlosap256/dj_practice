@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from dashboard.views import Index, DataIOView
+from dashboard.views import Index, Frequency, DataIOView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -25,6 +25,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
 
     path("", Index.as_view(), name="index"),
+    path("frequency", Frequency.as_view(), name="frequency"),
     path("data_io", DataIOView.as_view(), name="data_io"),
     
 

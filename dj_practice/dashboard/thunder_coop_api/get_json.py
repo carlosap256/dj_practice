@@ -1,5 +1,6 @@
-from dashboard.thunder_coop_api.serializers import NormalSerializer, Normal, BigRunSerializer, BigRun, TeamContestSerializer, TeamContest
+# from dashboard.thunder_coop_api.serializers import NormalSerializer, Normal, BigRunSerializer, BigRun, TeamContestSerializer, TeamContest, PhaseRewardsSerializer
 from rest_framework.serializers import ModelSerializer
+from dashboard.thunder_coop_api.serializers import deserialize_bulk
 
 import json
 import urllib3
@@ -29,36 +30,12 @@ class JsonDataGrabber:
       if self.etag:
           headers.add("etag", self.etag)
       return headers
-
-
-class RawDataImporter:
-  
-  def deserialize_bulk(self, json_data):
-    total_before = Normal.objects.all().count() + BigRun.objects.all().count() + TeamContest.objects.all().count()
-    json_object = json.loads(json_data)
-    self.deserialize_object(json_object.get('Normal', None), NormalSerializer)
-    self.deserialize_object(json_object.get('BigRun', None), BigRunSerializer)
-    self.deserialize_object(json_object.get('TeamContest', None), TeamContestSerializer)
-  
-    total_after = Normal.objects.all().count() + BigRun.objects.all().count() + TeamContest.objects.all().count()
-    return total_after - total_before
-
-  def deserialize_object(self, json_object, model_serializer):
-    if json_object:
-      serializer = model_serializer(data=json_object, many=True)
-      is_valid = serializer.is_valid()
-      errors = serializer.errors
-      print(f"errors: {errors}")
-      if not errors:
-        print(f"data: {serializer.validated_data}")
-        serializer.save()
     
 def data_importer(url=None):
     grabber = JsonDataGrabber(url)
-    importer = RawDataImporter()
 
     raw_string_data = grabber.get_json_data_from_url()
-    new_objects_added = importer.deserialize_bulk(raw_string_data)
+    new_objects_added = deserialize_bulk(raw_string_data)
     return new_objects_added
 
 

@@ -6,7 +6,8 @@ from datetime import datetime
 from django.core.management.base import BaseCommand
 # from pytz import UTC
 
-from dashboard.thunder_coop_api.get_json import data_importer, RawDataImporter
+from dashboard.thunder_coop_api.serializers import deserialize_bulk
+from dashboard.thunder_coop_api.get_json import data_importer
 from dashboard.thunder_coop_api.exporter import DataExporter
 
 
@@ -56,10 +57,9 @@ class Command(BaseCommand):
             logger.info(f"Done")
         if input:
             logger.info(f"Import data from {input}")
-            rawdata_importer = RawDataImporter()
 
             with open(os.path.join(input)) as input_file:                
-                rawdata_importer.deserialize_bulk(input_file.read())
+                deserialize_bulk(input_file.read())
             
                 logger.info(f"Done")
             

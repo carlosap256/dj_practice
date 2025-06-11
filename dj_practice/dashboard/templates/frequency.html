@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+{% load static %}
+
+
+{% include "partials/static_imports/index_imports.html" %}
+
+<script>
+$(document).ready(function(){
+});
+</script>
+
+{{total_frequency}}
+{% for weapon in weapon_frequency %}
+  <div class="card border-success mb-3" style="max-width: 18rem;">
+    <div class="row">
+      <div class="col-3">
+        <img src="{% static '/images/' %}{{weapon.filename}}.webp" class="img-fluid" alt="{{weapon.name}}">
+      </div>
+      <div class="col-9">
+        <div class="progress" role="progressbar" aria-label="Info example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar text-bg-info" style="width: {{weapon.percent}}%">{{weapon.frequency}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+
+
+
+
+
+{% endblock content %}
